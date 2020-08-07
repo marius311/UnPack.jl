@@ -94,12 +94,10 @@ macro unpack(args)
     items, suitecase = args.args
     items = isa(items, Symbol) ? [items] : items.args
     suitecase_instance = gensym()
-    kd = [:( $key = $UnPack.unpack($suitecase_instance, Val{$(Expr(:quote, key))}()) ) for key in items]
-    kdblock = Expr(:block, kd...)
+    kd = [:($UnPack.unpack($suitecase_instance, Val{$(Expr(:quote, key))}())) for key in items]
     expr = quote
         ($(items...),) = let $suitecase_instance = $suitecase # handles if suitecase is not a variable but an expression
-            $kdblock
-            ($(items...),)
+            ($(kd...),)
         end
     end
     esc(expr)
